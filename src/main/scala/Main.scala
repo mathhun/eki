@@ -48,8 +48,7 @@ object Eki {
       }
     }
 
-    val (p, ps) = removeNearest(paths, distances)
-    loop(List(p), update(p, ps, distances))
+    loop(Nil, paths)
   }
 
   def start(s: String, e: String): Option[Path] = {
