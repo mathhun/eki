@@ -7,9 +7,10 @@ object Eki {
   def nameToKanjiName(name: String, stations: List[Station]): Option[String] =
     stations.find(_.name == name) map { _.nameKanji }
 
-  def distanceBetween(from: String, to: String, distances: List[Distance]): Option[Double] =
+  def distanceBetween(from: String, to: String, distances: List[Distance]): Option[Double] = {
     { distances.find(_.from == from) filter { _.to == to } map { _.distance } }.orElse
-  { distances.find(_.to == from) filter { _.from == to } map { _.distance } }
+    { distances.find(_.to == from) filter { _.from == to } map { _.distance } }
+  }
 
   def makeStationList(stations: List[Station]): List[Path] =
     stations.map { s => Path(s.nameKanji, Double.MaxValue, Nil) }
