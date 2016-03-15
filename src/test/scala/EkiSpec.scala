@@ -17,3 +17,48 @@ class EkiSpec extends FunSpec with Matchers {
     }
   }
 }
+
+class Tree extends FunSpec with Matchers {
+  describe("assoc") {
+    it("success") {
+      STree.assoc("後楽園", List(("新大塚", 1.2), ("後楽園", 1.8))) should be (Some(1.8))
+    }
+    it("failure") {
+      STree.assoc("池袋", List(("新大塚", 1.2), ("後楽園", 1.8))) should be (None)
+    }
+  }
+  describe("insert") {
+    it("") {
+      val tree0 = STree.empty
+      val dist0 = Distance("a", "b", "line", 1.8, 3)
+      val tree1 = STree.insert(tree0, dist0)
+
+      tree1 should be (
+        Node(
+          STree.empty,
+          "a",List(("b",1.8)),
+          Node(
+            STree.empty,
+            "b",List(("a",1.8)),
+            STree.empty))
+      )
+
+      val dist1 = Distance("b", "c", "line", 2.1, 4)
+      val tree2 = STree.insert(tree1, dist1)
+
+      println(tree2)
+      tree2 should be (
+        Node(
+          STree.empty,
+          "a",List(("b",1.8)),
+          Node(
+            STree.empty,
+            "b",List(("c",2.1), ("a",1.8)),
+            Node(
+              STree.empty,
+              "c",List(("b",2.1)),
+              STree.empty)))
+      )
+    }
+  }
+}

@@ -3,6 +3,54 @@ case class Distance(from: String, to: String, line: String, distance: Double, ti
 case class Line(name: String, nameKanji: String)
 case class Path(name: String, minDistance: Double, path: List[String])
 
+abstract class MyTree[A <% Ordered[A], B] {
+  def insert(label: A, data: B): MyTree[A, B]
+  def isEmpty: Boolean
+}
+case class Node[A <% Ordered[A], B](left: MyTree[A, B], label: A, values: List[B], right: MyTree[A, B]) extends MyTree[A, B] {
+  def insert(lab: A, data: B): MyTree[A, B] =
+    if (lab < label) {
+      val l = if (left.isEmpty) MyTree.single(lab, data) else left.insert(lab, data)
+      Node(l, label, values, right)
+    } else if (label < lab) {
+      val r = if (right.isEmpty) MyTree.single(lab, data) else right.insert(lab, data)
+      Node(left, label, values, r)
+    } else {
+      Node(left, label, data :: values, right)
+    }
+
+  def isEmpty = false
+}
+case class Empty[A <% Ordered[A], B]() extends MyTree[A, B] {
+  def insert(label: A, data: B): MyTree[A, B] = MyTree.single(label, data)
+  def isEmpty = true
+}
+object MyTree {
+  def single[A <% Ordered[A], B](label: A, data: B) = Node(Empty[A, B](), label, List(data), Empty[A, B]())
+  def insert[A, B](tree: MyTree[A, B], label: A, data: B): MyTree[A, B] = tree.insert(label, data)
+}
+
+object STree {
+  type ToDistance = (String, Double)
+  type FromToDistance = (String, ToDistance)
+
+  def empty: MyTree[String, ToDistance] = Empty[String, ToDistance]()
+
+  def assoc(name: String, distances: List[ToDistance]): Option[Double] =
+    distances find (_._1 == name) map (_._2)
+
+  def fromDistance(d: Distance): (FromToDistance, FromToDistance) =
+    (
+      (d.from, (d.to, d.distance)),
+      (d.to, (d.from, d.distance))
+    )
+
+  def insert(tree: MyTree[String, ToDistance], distance: Distance): MyTree[String, ToDistance] = {
+    val ((l0, d0), (l1, d1)) = fromDistance(distance)
+    tree.insert(l0, d0).insert(l1, d1)
+  }
+}
+
 object Eki {
   def nameToKanjiName(name: String, stations: List[Station]): Option[String] =
     stations.find(_.name == name) map { _.nameKanji }
